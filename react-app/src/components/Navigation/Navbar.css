@@ -1,0 +1,34 @@
+.main-navbar {
+  width: 100%;
+  padding: 0 48px;
+  height: 64px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  z-index: 20;
+  background-color: black;
+}
+
+.navMenuContainer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.navMenu {
+  margin-left: 33px;
+  height: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.navMenu span {
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+.navMenu span:hover {
+  color: var(--rh-green-base);
+}

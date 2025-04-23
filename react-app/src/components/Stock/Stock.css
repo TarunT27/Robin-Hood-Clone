@@ -1,0 +1,208 @@
+.hide {
+  display: none;
+}
+
+nav>button {
+  cursor: pointer;
+}
+
+.stock-dtls-title {
+  border-bottom: 1px solid var(--rh-dark-pressed);
+  padding-bottom: 0.5rem;
+}
+
+.interval-bar {
+  border-bottom: 2px solid var(--rh-dark-pressed);
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.interval-btn {
+  position: relative;
+  top: 2px;
+  box-sizing: border-box;
+  width: 2rem;
+  margin: 0 1rem 0 0;
+  background-color: black;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.red.selected {
+  color: var(--rh-red-base);
+  border-bottom: 2px solid var(--rh-red-base);
+}
+
+.red:hover {
+  color: var(--rh-red-base);
+}
+
+.green.selected {
+  color: var(--rh-green-base);
+  border-bottom: 2px solid var(--rh-green-base);
+}
+
+.green:hover {
+  color: var(--rh-green-base);
+}
+
+.stock-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stock-page-container {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.stock-about-container {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.stock-symbol-price-container {
+  width: 100%;
+}
+
+#stock-price-change {
+  display: flex;
+}
+
+#add-to-list-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background-color: black;
+  padding: 1rem;
+  font-size: 1rem;
+  min-width: 100%;
+  height: 3rem;
+  border-radius: 1.5rem;
+  white-space: nowrap;
+  /* position: relative; */
+  top: 4rem;
+  left: 4rem;
+}
+
+#buy-stock-btn,
+#sell-stock-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background-color: black;
+  padding: 1rem;
+  font-size: 1rem;
+  min-width: 12rem;
+  height: 3rem;
+  border-radius: 1.5rem;
+  white-space: nowrap;
+  margin: 0.5rem 0 0.5rem;
+}
+
+#buy-stock-btn {
+  margin-right: 0.5rem;
+}
+
+.buy-sell-btn-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+#add-to-list-btn.green,
+#buy-stock-btn.green,
+#sell-stock-btn.green {
+  border: 2px solid var(--rh-green-base);
+  color: var(--rh-green-base);
+}
+
+#add-to-list-btn.green:hover,
+#buy-stock-btn.green:hover,
+#sell-stock-btn.green:hover {
+  background-color: var(--rh-dark-green-hover);
+}
+
+#add-to-list-btn.red:hover,
+#buy-stock-btn.red:hover,
+#sell-stock-btn.red:hover {
+  background-color: var(--rh-red-hover2);
+}
+
+#buy-stock-btn.green.trade-selected,
+#sell-stock-btn.green.trade-selected {
+  background-color: var(--rh-dark-green-hover);
+}
+
+#buy-stock-btn.red.trade-selected,
+#sell-stock-btn.red.trade-selected {
+  background-color: var(--rh-red-hover2);
+}
+
+#add-to-list-btn.red,
+#buy-stock-btn.red,
+#sell-stock-btn.red {
+  border: 2px solid var(--rh-red-base);
+  color: var(--rh-red-base);
+}
+
+.stock-add-to-watchlist-form {
+  position: absolute;
+  top: 0;
+  min-width: 100%;
+  min-height: 100%;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  /* margin-top: 10rem; */
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.stock-financials-container {
+  width: 100%;
+}
+
+.stock-financials-list {
+  list-style-type: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 0;
+  row-gap: 1rem;
+}
+
+.financials-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.stock-financials-list>li>div {
+  font-size: 14px;
+}
+
+.stock-btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 25rem;
+  margin: 10rem 0 0 5rem;
+}
+
+.stock.buyingPowerContainer {
+  width: 100%;
+}
+
+.stock-owned-container {
+  height: 2rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}

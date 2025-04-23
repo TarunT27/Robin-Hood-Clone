@@ -1,0 +1,102 @@
+:root {
+  --rh-green-base: rgb(0, 200, 5);
+  --rh-green-hover: rgba(38, 208, 43, 1);
+  --rh-green-pressed: rgba(64, 214, 68, 1);
+  --rh-dark-green-hover: rgba(0, 160, 4, 0.2);
+  --rh-red-base: rgb(255, 80, 0);
+  --rh-red-hover: rgba(255, 106, 38, 1);
+  --rh-red-hover2: rgba(255, 80, 0, 0.2);
+  --rh-red-pressed: rgba(255, 124, 64, 1);
+  --rh-dark-base: rgb(30, 33, 36);
+  --rh-dark-hover: rgba(53, 55, 58, 1);
+  --rh-dark-pressed: rgba(75, 77, 80, 1);
+  --rh-dark-border: rgb(64, 73, 78);
+  --rh-dark-base2: rgb(145, 159, 166);
+}
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  max-width: 100vw;
+}
+
+body * {
+  box-sizing: border-box;
+}
+
+main {
+  background-color: black;
+  color: white;
+  padding-bottom: 36px;
+  min-height: 100vh;
+  position: relative;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 64px;
+}
+
+nav {
+  width: 100%;
+  background-color: unset;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  height: 35px;
+}
+
+.logoImg {
+  height: 100%;
+  margin-left: 10px;
+}
+
+.logoText {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.btn {
+  cursor: pointer;
+  width: fit-content;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 24px;
+  border: none;
+  padding: 0 36px;
+  height: 48px;
+}
+
+.btn-transparent {
+  background-color: transparent;
+  border: none;
+}
+
+.btn-filled {
+  background-color: var(--rh-green-base);
+  color: black;
+}
+
+.btn-filled:hover {
+  background-color: var(--rh-green-hover);
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+.noSelect {
+  user-select: none;
+}
