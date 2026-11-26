@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { logout } from '../../store/session';
 import './ProfileMenu.css';

@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint
 from flask_login import current_user, login_required
-from app.models import User
+
 from .buying_power_routes import buying_power_routes
 from .bank_account_routes import bank_account_routes
 from .asset_routes import asset_routes
@@ -22,15 +22,10 @@ def get_portfolio():
     """
     Fetches the portfolio of current_user
     """
-    user = User.query.get(current_user.id).to_dict()
-
-    portfolio = {
+    user = current_user.to_dict()
+    return {
         'buying_power': user['buying_power'],
         'bank_accounts': user['bank_accounts'],
         'assets': user['assets'],
-        'watchlists': user['watchlists']
+        'watchlists': user['watchlists'],
     }
-
-    # print(portfolio)
-
-    return portfolio

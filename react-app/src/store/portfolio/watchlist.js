@@ -43,113 +43,75 @@ const deleteFromWatchlistType = (stock, watchlist) => {
   };
 };
 
-export const searchStocks = query => async dispatch => {
-  // console.log('Hitting Search Stocks');
-  const response = await fetch(`/api/stocks/search/${query}`);
-  if (response.status === 200) {
-    let data = await response.json();
-    // console.log(data);
-    return data;
+// Sends a request and returns [ok, data]. Errors come back as
+// { error: 'message' } so the forms can show them.
+const request = async (url, options = {}) => {
+  let response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    });
+  } catch (err) {
+    return [false, { error: 'Could not reach the server. Please try again.' }];
   }
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.error) {
+    const error = data.error || (data.errors && data.errors[0]) || 'Something went wrong.';
+    return [false, { error: String(error).replace(/^\w+ : /, '') }];
+  }
+  return [true, data];
 };
 
-export const createWatchlist = (name, userId) => async dispatch => {
-  // console.log('Creating Watchlist');
-  const response = await fetch('/api/portfolio/watchlists/', {
+export const searchStocks = query => async () => {
+  const [ok, data] = await request(`/api/stocks/search/${encodeURIComponent(query)}`);
+  return ok ? data : [];
+};
+
+export const createWatchlist = name => async dispatch => {
+  const [ok, data] = await request('/api/portfolio/watchlists/', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ user_id: userId, name }),
+    body: JSON.stringify({ name }),
   });
-  if (response.status === 200) {
-    const data = await response.json();
-    if (data.error) {
-      // console.log('data error if');
-      // console.log(data);
-      return data;
-    } else {
-      // probabably give them an option to add stock somehow early
-      data.stocks = [];
-      await dispatch(createWatchlistType(data));
-      return data;
-    }
+  if (ok) {
+    data.stocks = data.stocks || {};
+    await dispatch(createWatchlistType(data));
   }
+  return data;
 };
 
 export const deleteWatchlistReducer = id => async dispatch => {
-  // console.log('Deleting Watchlist');
-  const response = await fetch(`/api/portfolio/watchlists/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  if (response.status === 200) {
-    const data = await response.json();
-    await dispatch(deleteWatchlistType(data));
-    return data;
-  }
+  const [ok, data] = await request(`/api/portfolio/watchlists/${id}`, { method: 'DELETE' });
+  if (ok) await dispatch(deleteWatchlistType(data));
+  return data;
 };
+
 export const editWatchlist = (name, userId, watchlistId) => async dispatch => {
-  // console.log('Editing Watchlist');
-  const response = await fetch(`/api/portfolio/watchlists/${watchlistId}`, {
+  const [ok, data] = await request(`/api/portfolio/watchlists/${watchlistId}`, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      user_id: userId,
-      name,
-    }),
+    body: JSON.stringify({ name }),
   });
-  if (response.status === 200) {
-    const data = await response.json();
-    if (data.error) {
-      // console.log('data error if');
-      // console.log(data);
-      return data;
-    }
-    await dispatch(editWatchlistType(data));
-    return data;
-  }
+  if (ok) await dispatch(editWatchlistType(data));
+  return data;
 };
-export const addStockToWatchlist = (name, watchlist) => async dispatch => {
-  // console.log('Hitting add stock to watchlist');
-  // console.log(name);
-  const response = await fetch(`/api/portfolio/watchlists/${watchlist.id}/stocks`, {
+
+export const addStockToWatchlist = (symbol, watchlist) => async dispatch => {
+  const [ok, data] = await request(`/api/portfolio/watchlists/${watchlist.id}/stocks`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      name,
-    }),
+    body: JSON.stringify({ symbol }),
   });
-  if (response.status === 200) {
-    const data = await response.json();
-    if (data.error) {
-      return data;
-    }
-    await dispatch(addToWatchlistType(data, watchlist));
-  } else {
-    //adding the same one error need ot handle
-  }
+  if (ok) await dispatch(addToWatchlistType(data, watchlist));
+  return data;
 };
+
 export const deleteStockFromWatchlist = (id, watchlist) => async dispatch => {
-  // console.log('HITTING DELETE STOCK');
-  // console.log(id);
-  // console.log(watchlist);
-  const response = await fetch(`/api/portfolio/watchlists/${watchlist.id}/stocks/${id}`, {
+  const [ok, data] = await request(`/api/portfolio/watchlists/${watchlist.id}/stocks/${id}`, {
     method: 'DELETE',
   });
-  const data = await response.json();
-  if (response.status === 200) {
-    await dispatch(deleteFromWatchlistType(data, watchlist));
-  } else {
-    //error handler
-  }
+  if (ok) await dispatch(deleteFromWatchlistType(data, watchlist));
+  return data;
 };
+
 let initialState = {};
 const watchlistReducer = (state = initialState, action) => {
   let newState = {};

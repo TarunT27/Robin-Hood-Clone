@@ -17,50 +17,42 @@ const AddStockForm = ({ hideform, watchlist }) => {
   const updateName = async e => {
     let str = e.target.value.trim();
     if (str !== '') {
-      let res = await dispatch(searchStocks(str));
-      let stringList = [];
-      for (let stock of res) {
-        stringList.push(`${stock.name} ${stock.symbol}`);
-      }
-      setFilteredStocks(stringList);
+      const res = await dispatch(searchStocks(str));
+      setFilteredStocks(res || []);
+    } else {
+      setFilteredStocks([]);
     }
     setActiveSuggestionIndex(0);
     setShowSuggestions(true);
     setName(e.target.value);
   };
-  const updateOnlyName = async str => {
-    setName(str);
-  };
-  const onSuggestion = async e => {
-    // console.log('ON UGGESTION');
-    e.preventDefault();
-    const errors = [];
-    setName(e.target.innerText);
+  // Adds the chosen stock by its symbol (the list shows "Name SYMBOL").
+  const addStock = async stock => {
+    if (!stock) return;
+    setName(`${stock.name} ${stock.symbol}`);
     setFilteredStocks([]);
-    //for some reason it wont call set name
-    let addedStock = await dispatch(addStockToWatchlist(e.target.innerText, watchlist));
+    const addedStock = await dispatch(addStockToWatchlist(stock.symbol, watchlist));
     if (addedStock && addedStock.error) {
-      errors.push(addedStock.error);
-      setValidationErrors(errors);
+      setValidationErrors([addedStock.error]);
     } else {
+      setValidationErrors([]);
       setActiveSuggestionIndex(0);
       setShowSuggestions(false);
       hideform();
     }
   };
 
+  const onSuggestion = index => async e => {
+    e.preventDefault();
+    await addStock(filteredStocks[index]);
+  };
+
   const onKeyDown = async e => {
     if (e.keyCode === 13) {
       // console.log('IS THIS ENTER');
+      e.preventDefault();
       if (filteredStocks.length !== 0) {
-        setActiveSuggestionIndex(0);
-        setShowSuggestions(false);
-        // console.log(filteredStocks[activeSuggestionIndex]);
-        updateOnlyName(filteredStocks[activeSuggestionIndex]);
-        await dispatch(
-          addStockToWatchlist(filteredStocks[activeSuggestionIndex], watchlist)
-        );
-        hideform();
+        await addStock(filteredStocks[activeSuggestionIndex]);
       }
     } else if (e.keyCode === 38) {
       if (activeSuggestionIndex === 0) {
@@ -68,7 +60,7 @@ const AddStockForm = ({ hideform, watchlist }) => {
       }
       setActiveSuggestionIndex(activeSuggestionIndex - 1);
     } else if (e.keyCode === 40) {
-      if (activeSuggestionIndex - 1 === filteredStocks.length) {
+      if (activeSuggestionIndex >= filteredStocks.length - 1) {
         return;
       }
       setActiveSuggestionIndex(activeSuggestionIndex + 1);
@@ -85,8 +77,8 @@ const AddStockForm = ({ hideform, watchlist }) => {
             className = 'suggestion-active';
           }
           return (
-            <li className={className} key={index} onClick={onSuggestion}>
-              {suggestion}
+            <li className={className} key={suggestion.symbol} onClick={onSuggestion(index)}>
+              {`${suggestion.name} ${suggestion.symbol}`}
             </li>
           );
         })}

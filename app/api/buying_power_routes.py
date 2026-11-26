@@ -1,58 +1,30 @@
-from flask import Blueprint, jsonify, request
-from flask_login import login_required, current_user
-from app.models import User, db
+from decimal import Decimal
+
+from flask import Blueprint
+from flask_login import current_user, login_required
+
+from app.api.utils import bound_form, validation_errors_to_error_messages
 from app.forms import AddBuyingPowerForm
-from decimal import *
+from app.models import BankAccount, db
 
 buying_power_routes = Blueprint('buying_power', __name__)
-
-
-def validation_errors_to_error_messages(validation_errors):
-    """
-    Simple function that turns the WTForms validation errors into a simple list
-    """
-    errorMessages = []
-    for field in validation_errors:
-        for error in validation_errors[field]:
-            errorMessages.append(f'{field} : {error}')
-    return errorMessages
 
 
 @buying_power_routes.route('/add', methods=['PUT'])
 @login_required
 def add_bp():
-    user = User.query.get(current_user.id)
+    """
+    Moves pretend money from one of the user's linked bank accounts into
+    their buying power. Spending buying power only happens through a trade.
+    """
+    form = bound_form(AddBuyingPowerForm)
+    if not form.validate_on_submit():
+        return {'errors': validation_errors_to_error_messages(form.errors)}, 400
 
-    form = AddBuyingPowerForm()
-    form['csrf_token'].data = request.cookies['csrf_token']
-    if form.validate_on_submit():
+    if not BankAccount.query.filter_by(user_id=current_user.id).first():
+        return {'errors': ['buying_power : Link a bank account before depositing funds.']}, 400
 
-        val = Decimal(user.buying_power) + Decimal(form.data['buying_power'])
-        user.buying_power = val
-
-        db.session.add(user)
-        db.session.commit()
-
-        return str(user.buying_power)
-
-    return {'errors': validation_errors_to_error_messages(form.errors)}, 401
-
-
-@buying_power_routes.route('/subtract', methods=['PUT'])
-@login_required
-def subtract_bp():
-    user = User.query.get(current_user.id)
-
-    form = AddBuyingPowerForm()
-    form['csrf_token'].data = request.cookies['csrf_token']
-    if form.validate_on_submit():
-
-        val = Decimal(user.buying_power) - Decimal(form.data['buying_power'])
-        user.buying_power = val
-
-        db.session.add(user)
-        db.session.commit()
-
-        return str(user.buying_power)
-
-    return {'errors': validation_errors_to_error_messages(form.errors)}, 401
+    current_user.buying_power = (Decimal(current_user.buying_power or 0)
+                                 + Decimal(form.data['buying_power']))
+    db.session.commit()
+    return str(current_user.buying_power)

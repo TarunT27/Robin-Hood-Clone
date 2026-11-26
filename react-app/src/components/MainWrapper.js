@@ -14,6 +14,8 @@ const MainWrapper = props => {
 
       setLoaded(true);
     })();
+    // Load once on mount; the user doesn't change while this page is open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
 
   return (

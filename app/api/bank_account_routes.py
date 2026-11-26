@@ -1,93 +1,62 @@
-from flask import Blueprint, jsonify, request
-from app.models import db, BankAccount
-from app.forms import AddBankForm, EditBankForm
+from flask import Blueprint, jsonify
 from flask_login import current_user, login_required
 
+from app.api.utils import (bound_form, get_owned_or_404,
+                           validation_errors_to_error_messages)
+from app.forms import AddBankForm, EditBankForm
+from app.models import BankAccount, db
+
 bank_account_routes = Blueprint('bank_accounts', __name__)
-
-
-def validation_errors_to_error_messages(validation_errors):
-    """
-    Simple function that turns the WTForms validation errors into a simple list
-    """
-    errorMessages = []
-    for field in validation_errors:
-        for error in validation_errors[field]:
-            errorMessages.append(f'{field} : {error}')
-    return errorMessages
 
 
 @bank_account_routes.route('/')
 @login_required
 def linked():
     """
-    gets all bank accounts linked to user
+    Gets all bank accounts linked to the logged-in user
     """
-    current_user_id = int(current_user.id)
-
-    accounts = BankAccount.query.filter_by(user_id=current_user_id).all()
-
-    return jsonify({account.id: {'id': account.id, 'name': account.name, 'user': account.user_id, 'bank_id': account.bank_id, 'bank_name': account.bank.name, 'account_number': account.account_number} for account in accounts})
+    accounts = BankAccount.query.filter_by(user_id=current_user.id).all()
+    return jsonify({account.id: account.to_dict() for account in accounts})
 
 
 @bank_account_routes.route('/add', methods=['POST'])
 @login_required
 def add_bank():
     """
-    Links new Bank to logged in User
+    Links a new bank account to the logged-in user
     """
-    form = AddBankForm()
-    form['csrf_token'].data = request.cookies['csrf_token']
+    form = bound_form(AddBankForm)
     if form.validate_on_submit():
-        bank = BankAccount(
-            user_id=form.data['user_id'],
+        account = BankAccount(
+            user_id=current_user.id,
             bank_id=form.data['bank_id'],
-            name=form.data['name'],
-            account_number=form.data['account_number']
-        )
-        db.session.add(bank)
+            name=form.data['name'].strip(),
+            account_number=form.data['account_number'])
+        db.session.add(account)
         db.session.commit()
-
-        return bank.to_dict()
-
-    return {'errors': validation_errors_to_error_messages(form.errors)}, 401
+        return account.to_dict()
+    return {'errors': validation_errors_to_error_messages(form.errors)}, 400
 
 
 @bank_account_routes.route('/delete/<int:id>', methods=['DELETE'])
 @login_required
 def remove_account(id):
-    acct = BankAccount.query.get(id)
-
-    if(current_user.id == acct.user_id):
-        db.session.delete(acct)
-        db.session.commit()
-
-    return "Bank Account Unlinked"
+    account = get_owned_or_404(BankAccount, id)
+    db.session.delete(account)
+    db.session.commit()
+    return {'message': 'Bank account unlinked', 'id': id}
 
 
 @bank_account_routes.route('/edit/<int:id>', methods=['PUT'])
 @login_required
 def update_bank(id):
-    post = BankAccount.query.get(id)
-
-    form = EditBankForm()
-    form['csrf_token'].data = request.cookies['csrf_token']
-
+    account = get_owned_or_404(BankAccount, id)
+    form = bound_form(EditBankForm)
+    form.account_id = account.id
     if form.validate_on_submit():
-
-        post.user_id = form.data['user_id']
-        post.bank_id = form.data['bank_id']
-        post.name = form.data['name']
-        post.account_number = form.data['account_number']
-
-        try:
-            db.session.add(post)
-            db.session.commit()
-
-            return post.to_dict()
-
-        except:
-
-            return {'errors': ['account_number : Invalid bank account. Please enter a different account number.']}, 401
-
-    return {'errors': validation_errors_to_error_messages(form.errors)}, 401
+        account.bank_id = form.data['bank_id']
+        account.name = form.data['name'].strip()
+        account.account_number = form.data['account_number']
+        db.session.commit()
+        return account.to_dict()
+    return {'errors': validation_errors_to_error_messages(form.errors)}, 400

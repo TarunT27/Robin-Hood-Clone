@@ -1794,7 +1794,7 @@ FATBW	Fat Brands Inc WT
 FATE	Fate Therapeutics
 FATP	Fat Projects Acquisition Corp Class A Ordinary S
 FATPW	Fat Projects Acquisition Corp WT
-FB	Meta Platforms Inc
+META	Meta Platforms Inc
 FBIO	Fortress Biotech Inc
 FBIOP	Fortress Biotech Inc 9.375% Series A Cumulativ
 FBIZ	First Business Finan

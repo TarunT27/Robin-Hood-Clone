@@ -77,29 +77,69 @@ The "Buying Power" button works the same as on your portfolio.
 
 ![image](https://user-images.githubusercontent.com/92738445/163473492-8c08aacf-ac3f-40da-9301-8ec83fa97570.png)
 
-## Getting started:
+## Getting started
 
-1. Clone with ```https://github.com/pierikm/robinhood-clone.git```
-2. Run ```pipenv install --dev -r dev-requirements.txt && pipenv install -r requirements.txt``` in the root directory to install dependencies
-3. Create a .env file in the root directory, and fill in the details using the .env.example
-4. Create a user in postgres with the same name and password as in the .env file ```CREATE <user> WITH PASSWORD <password> CREATEDB;```
-5. Create a database in postgres with the same name as in the .env ```CREATE DATABASE <database> WITH OWNER <user>;```
-6. Get into your pipenv, migrate your database, seed your database, and run your flask app
+You need Python 3.10+ and Node.js 18+. No database server or API key is
+required to try it: the app uses a local SQLite file and simulated prices by
+default.
 
-   ```bash
-   pipenv shell
-   ```
+1. Clone the repo and install the backend:
 
    ```bash
-   flask db upgrade
+   git clone https://github.com/TarunT27/Robin-Hood-Clone.git
+   cd Robin-Hood-Clone
+   python -m venv .venv && source .venv/bin/activate
+   pip install -r dev-requirements.txt
    ```
 
-   ```bash
-   flask seed all
-   ```
+2. (Optional) Copy `.env.example` to `.env` to use Postgres, set a
+   `SECRET_KEY`, or add a free [Finnhub](https://finnhub.io) key for live
+   quotes.
+
+3. Create the database with demo data and start the API on port 5000:
 
    ```bash
-   flask run
+   flask --app app init-db
+   flask --app app run
    ```
-8. Open a seperate terminal then cd into the `react-app` folder and run ```npm install``` to install the dependencies for the frontend.
-9. Run ```npm start``` in the `react-app` folder to start the frontend server.
+
+   To build the schema from the migrations instead (on Postgres or SQLite),
+   run `flask --app app db upgrade` and then `flask --app app seed all`.
+
+4. In a second terminal, start the React app on port 3000:
+
+   ```bash
+   cd react-app
+   npm install
+   npm start
+   ```
+
+5. Open http://localhost:3000 and click **Demo** to log in as the demo user.
+
+### Market data
+
+Quotes, charts and financials come from Finnhub when `FINNHUB_API_KEY` is set.
+Finnhub's free plan no longer includes price history, and any request can be
+rate limited, so whenever Finnhub can't answer the app falls back to a
+simulated market: a repeatable random walk per symbol, where the quote always
+matches the chart. With a free key, live quotes still work, and the simulated
+chart is scaled so it ends on the live price. Set `MARKET_DATA_FALLBACK=off`
+to see errors instead.
+
+### Trading
+
+Trades are priced and settled on the server in one step
+(`POST /api/portfolio/assets/trade`), so the browser can't choose its own
+price, spend more buying power than it has, or sell shares it doesn't own.
+
+### Tests
+
+```bash
+pytest            # backend
+cd react-app && CI=true npm test   # frontend
+```
+
+### Production
+
+`docker build -t robinsock . && docker run -p 8000:8000 -e DATABASE_URL=... -e SECRET_KEY=... robinsock`
+builds the React app and serves it from Flask with gunicorn.

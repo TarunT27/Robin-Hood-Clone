@@ -11,7 +11,7 @@ const Splash = ({ user }) => {
           <div className='home'>
             <Link className='logo' to='/'>
               <span className='logoText'>Robinsock</span>
-              <img className='logoImg' src='/favicon.ico' alt='' />
+              <img className='logoImg' src='/static/favicon.ico' alt='' />
             </Link>
           </div>
           <div className='auth'>

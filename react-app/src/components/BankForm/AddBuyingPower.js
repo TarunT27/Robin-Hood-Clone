@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Modal2 } from './context/Modal';
 import { addBuyingPower } from '../../store/portfolio/buyingPower';
 
@@ -11,7 +10,6 @@ function AddBuyingPower({ userId, name, accountNumber, id, bankId }) {
 
   const [errors, setErrors] = useState([]);
 
-  const user = useSelector(state => state.session.user);
   const dispatch = useDispatch();
 
   const updateBp = e => {

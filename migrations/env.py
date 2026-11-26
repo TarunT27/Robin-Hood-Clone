@@ -1,4 +1,3 @@
-from __future__ import with_statement
 from flask import current_app
 
 import logging
@@ -22,9 +21,12 @@ logger = logging.getLogger('alembic.env')
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
+# SQLAlchemy 2 hides the password when a URL is turned into a string, so
+# render it explicitly.
 config.set_main_option(
     'sqlalchemy.url',
-    str(current_app.extensions['migrate'].db.engine.url).replace('%', '%%'))
+    current_app.extensions['migrate'].db.engine.url.render_as_string(
+        hide_password=False).replace('%', '%%'))
 target_metadata = current_app.extensions['migrate'].db.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -82,7 +84,6 @@ def run_migrations_online():
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            compare_type=True,
             process_revision_directives=process_revision_directives,
             **current_app.extensions['migrate'].configure_args
         )

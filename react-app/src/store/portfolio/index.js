@@ -1,6 +1,6 @@
 import { TRADE_ASSETS, SELL_ALL_ASSETS } from './assets';
 import { ADD_BANK_ACCOUNT, EDIT_BANK_ACCOUNT, REMOVE_BANK_ACCOUNT } from './bankAccount';
-import { ADD_BP, SUBTRACT_BP } from './buyingPower';
+import { ADD_BP } from './buyingPower';
 import {
   CREATE_WATCHLIST,
   DELETE_WATCHLIST,
@@ -36,16 +36,15 @@ export default function reducer(state = null, action) {
       return action.portfolio;
 
     case TRADE_ASSETS:
-      const buyState = { ...state };
-      if (buyState.assets[action.asset.symbol]) {
-        buyState.assets[action.asset.symbol].count = action.asset.count;
-      } else buyState.assets[action.asset.symbol] = action.asset;
-      return { ...buyState };
-    case SELL_ALL_ASSETS:
-      // console.log(action);
-      const sellAllState = { ...state };
-      if (sellAllState.assets[action.symbol]) delete sellAllState.assets[action.symbol];
-      return { ...sellAllState };
+      return {
+        ...state,
+        assets: { ...state.assets, [action.asset.symbol]: action.asset },
+      };
+    case SELL_ALL_ASSETS: {
+      const assets = { ...state.assets };
+      delete assets[action.symbol];
+      return { ...state, assets };
+    }
 
     case REMOVE_BANK_ACCOUNT:
       newState = JSON.parse(JSON.stringify(state));
@@ -61,10 +60,6 @@ export default function reducer(state = null, action) {
       return newState;
 
     case ADD_BP:
-      newState = JSON.parse(JSON.stringify(state));
-      newState.buying_power = action.payload;
-      return newState;
-    case SUBTRACT_BP:
       newState = JSON.parse(JSON.stringify(state));
       newState.buying_power = action.payload;
       return newState;

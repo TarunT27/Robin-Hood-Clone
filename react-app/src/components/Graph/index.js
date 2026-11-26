@@ -1,6 +1,5 @@
-import { useRef } from 'react';
-import { Line, getElementAtEvent } from 'react-chartjs-2';
-import { Chart as ChartJS } from 'chart.js/auto';
+import { Line } from 'react-chartjs-2';
+import 'chart.js/auto'; // registers every chart type react-chartjs-2 needs
 import { convertTimes } from '../utils/graphUtils';
 
 import './Graph.css';
