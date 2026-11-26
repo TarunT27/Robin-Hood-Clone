@@ -1,10 +1,9 @@
-from tokenize import String
 from flask_wtf import FlaskForm
 from wtforms import StringField
-from wtforms.validators import DataRequired
-
+from wtforms.validators import DataRequired, Length
 
 
 class CreateWatchlistForm(FlaskForm):
-    name = StringField('name', validators=[DataRequired()])
-    user_id = StringField('name',validators=[DataRequired()])
+    name = StringField('name', validators=[
+        DataRequired(message='Please enter a name.'),
+        Length(max=100, message='Name must be 100 characters or fewer.')])

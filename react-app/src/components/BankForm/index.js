@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { addBankAccount, deleteBankAccount } from '../../store/portfolio/bankAccount';
 import EditBank from './EditBank';
@@ -12,8 +12,6 @@ const BankForm = () => {
 
   const [name, setName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
-
-  const [info, setInfo] = useState(false);
 
   const user = useSelector(state => state.session.user);
   const dispatch = useDispatch();
@@ -36,7 +34,6 @@ const BankForm = () => {
       setErrors(data);
     }
 
-    setInfo(true);
   };
 
   const handleClick = async e => {
@@ -49,8 +46,6 @@ const BankForm = () => {
     if (data) {
       alert(data);
     }
-
-    setInfo(true);
   };
 
   const updateBank = e => {

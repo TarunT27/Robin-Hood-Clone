@@ -1,1 +1,5 @@
-psycopg2-binary==2.8.6
+-r requirements.txt
+# Tests
+pytest>=8,<10
+# Postgres driver (production uses Postgres; development defaults to SQLite)
+psycopg2-binary>=2.9,<3

@@ -21,7 +21,7 @@ const SearchBar = () => {
   return (
     <div className='searchBarWrapper'>
       <div
-        className={'searchBarContainer' + `${showMenu ? ' focused' : ''}`}
+        className={`searchBarContainer${showMenu ? ' focused' : ''}`}
         onClick={e => {
           e.stopPropagation();
           !showMenu && setShowMenu(true);

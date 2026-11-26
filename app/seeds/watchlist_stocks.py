@@ -1,10 +1,11 @@
 from app.models import db, WatchlistStock
+from .utils import clear_table
 
 
 def seed_watchlist_stocks():
     aapl_1 = WatchlistStock(watchlist_id=1, symbol='AAPL')
     tsla_1 = WatchlistStock(watchlist_id=1, symbol='TSLA')
-    fb_1 = WatchlistStock(watchlist_id=1, symbol='FB')
+    meta_1 = WatchlistStock(watchlist_id=1, symbol='META')
     nvda_1 = WatchlistStock(watchlist_id=1, symbol='NVDA')
     nflx_1 = WatchlistStock(watchlist_id=1, symbol='NFLX')
     twlo_1 = WatchlistStock(watchlist_id=1, symbol='TWLO')
@@ -26,7 +27,7 @@ def seed_watchlist_stocks():
 
     db.session.add(aapl_1)
     db.session.add(tsla_1)
-    db.session.add(fb_1)
+    db.session.add(meta_1)
     db.session.add(nvda_1)
     db.session.add(nflx_1)
     db.session.add(twlo_1)
@@ -49,11 +50,6 @@ def seed_watchlist_stocks():
     db.session.commit()
 
 
-# Uses a raw SQL query to TRUNCATE the users table.
-# SQLAlchemy doesn't have a built in function to do this
-# TRUNCATE Removes all the data from the table, and RESET IDENTITY
-# resets the auto incrementing primary key, CASCADE deletes any
-# dependent entities
+
 def undo_watchlist_stocks():
-    db.session.execute('TRUNCATE watchlist_stocks RESTART IDENTITY CASCADE;')
-    db.session.commit()
+    clear_table('watchlist_stocks')

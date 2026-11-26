@@ -1,31 +1,26 @@
-FROM node:12 AS build-stage
+FROM node:20-alpine AS build-stage
 
 WORKDIR /react-app
+COPY react-app/package.json react-app/package-lock.json ./
+RUN npm ci
 COPY react-app/. .
-
-# You have to set this because it should be set during build time.
-ENV REACT_APP_BASE_URL=https://robinsock.herokuapp.com
-
-# Build our React App
-RUN npm install
 RUN npm run build
 
-FROM python:3.9
+FROM python:3.12-slim
 
-# Setup Flask environment
-ENV FLASK_APP=app
-ENV FLASK_ENV=production
-ENV SQLALCHEMY_ECHO=True
-
-EXPOSE 8000
+ENV FLASK_APP=app \
+    FLASK_ENV=production \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 WORKDIR /var/www
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt psycopg2-binary
+
 COPY . .
-COPY --from=build-stage /react-app/build/* app/static/
+COPY --from=build-stage /react-app/build/ react-app/build/
 
-# Install Python Dependencies
-RUN pip install -r requirements.txt
-RUN pip install psycopg2
-
-# Run flask environment
-CMD gunicorn app:app
+EXPOSE 8000
+# Heroku and most hosts set $PORT; default to 8000.
+CMD gunicorn --bind 0.0.0.0:${PORT:-8000} app:app

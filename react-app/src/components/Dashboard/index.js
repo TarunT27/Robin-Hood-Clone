@@ -6,6 +6,7 @@ import GraphBar from '../Graph/GraphBar';
 import Graph from '../Graph';
 import { getCandle } from '../../store/candles';
 import './Dashboard.css';
+import { formatPercent } from '../utils/stockUtils';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -25,6 +26,12 @@ const Dashboard = () => {
   const assetList = useSelector(state => Object.values(state.portfolio.assets));
   const assetSymbols = assetList.map(asset => asset.symbol);
   const watchlists = Object.values(useSelector(state => state.portfolio.watchlists));
+  // Changes whenever a holding or a watchlist stock is added or removed,
+  // so the quotes below are fetched again only when they need to be.
+  const quoteKey = [
+    ...assetList.map(asset => `${asset.symbol}:${asset.count}`),
+    ...watchlists.flatMap(watchlist => Object.values(watchlist.stocks).map(stock => stock.symbol)),
+  ].sort().join(',');
 
   const bp = useSelector(state => state.portfolio.buying_power).toLocaleString('en-US', {
     style: 'currency',
@@ -33,15 +40,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     (async () => {
-      let sum = 0;
-      const quotes = {};
-      for (const symbol of assetSymbols) {
-        const res = await fetch(`/api/stocks/${symbol}/quote`);
-        const quote = await res.json();
-        sum += quote.current * assetList.find(asset => asset.symbol === symbol).count;
-        quotes[symbol] = quote;
-      }
-
       const watchlistSet = new Set();
       for (const watchlist of watchlists) {
         for (const stock of Object.values(watchlist.stocks)) {
@@ -51,19 +49,35 @@ const Dashboard = () => {
         }
       }
 
-      // console.log(watchlistSet);
-      for (const symbol of watchlistSet) {
-        const res = await fetch(`/api/stocks/${symbol}/quote`);
-        const quote = await res.json();
-        quotes[symbol] = quote;
-      }
+      // Fetch every quote at once instead of one after another.
+      const symbols = [...assetSymbols, ...watchlistSet];
+      const results = await Promise.all(
+        symbols.map(async symbol => {
+          try {
+            const res = await fetch(`/api/stocks/${symbol}/quote`);
+            return res.ok ? await res.json() : null;
+          } catch (err) {
+            return null;
+          }
+        })
+      );
+      const quotes = {};
+      symbols.forEach((symbol, i) => {
+        if (results[i]) quotes[symbol] = results[i];
+      });
 
-      // console.log(quotes);
+      let sum = 0;
+      for (const symbol of assetSymbols) {
+        if (quotes[symbol]) {
+          sum += quotes[symbol].current * assetList.find(asset => asset.symbol === symbol).count;
+        }
+      }
 
       setCurrPrice(sum);
       setQuotes(quotes);
     })();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quoteKey]);
 
   useEffect(() => {
     (async () => {
@@ -77,7 +91,8 @@ const Dashboard = () => {
     })();
 
     setIsLoaded(true);
-  }, [timeFrame]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeFrame, quoteKey]);
 
   // Some stocks are missing timestamps in candle data... so have to filter those time frames out
   const candles = {};
@@ -153,7 +168,7 @@ const Dashboard = () => {
               setTimeFrameText={setTimeFrameText}
             />
           </div>
-          <div className={'buyingPowerContainer' + `${showMenu ? ' selected' : ''}`}>
+          <div className={`buyingPowerContainer${showMenu ? ' selected' : ''}`}>
             <div className='bpHeader noSelect' onClick={() => setShowMenu(!showMenu)}>
               <span>Buying Power</span>
               {!showMenu && <span>{bp}</span>}
@@ -207,10 +222,7 @@ const Dashboard = () => {
                         quotes[asset.symbol]?.change > 0 ? 'green' : 'red'
                       }`}
                     >
-                      {`${quotes[asset.symbol]?.change > 0 ? '+' : ''}${
-                        quotes[asset.symbol]?.change
-                      }`}
-                      %
+                      {formatPercent(quotes[asset.symbol]?.change_percent)}
                     </span>
                   </div>
                 </Link>

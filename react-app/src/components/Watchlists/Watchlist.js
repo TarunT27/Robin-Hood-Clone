@@ -1,89 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { deleteStockFromWatchlist, deleteWatchlistReducer } from '../../store/portfolio/watchlist';
-import AddStockForm from '../AddStockForm';
-import EditWatchlistForm from '../EditWatchlistForm';
+import { deleteStockFromWatchlist } from '../../store/portfolio/watchlist';
+import { formatPercent } from '../utils/stockUtils';
 import WatchlistMenu from './watchlistMenu';
-// import Hamburger from 'hamburger-react';
 import './Watchlist.css';
 
 function Watchlist({ watchlist, quotes }) {
   const dispatch = useDispatch();
-  const [showModal, setShowModal] = useState(false);
-  const [showAddStockToWatchlist, setShowAddStockToWatchlist] = useState(false);
-  const [editWatchlistText, setEditWatchlistText] = useState('Edit');
   const [isOpen, setOpen] = useState(false);
-  const [menuText, setMenuText] = useState('+');
-  const toggleIsOpen = e => {
-    setOpen(!isOpen);
-    if (isOpen) setMenuText('+');
-    else {
-      setMenuText('-');
-    }
-  };
 
+  // Close the menu on any click elsewhere on the page.
   useEffect(() => {
-    if (!isOpen) {
-      setMenuText('+');
-      return;
-    }
-    const closeMenu = () => {
-      setOpen(false);
-    };
-
-    setMenuText('-');
+    if (!isOpen) return;
+    const closeMenu = () => setOpen(false);
     document.addEventListener('click', closeMenu);
-
     return () => document.removeEventListener('click', closeMenu);
   }, [isOpen]);
 
-  const toggleShowModal = async e => {
-    setShowModal(true);
-  };
-  const toggleShowAddStockToWatchlist = async e => {
-    setShowAddStockToWatchlist(!showAddStockToWatchlist);
-  };
-
-  let editForm;
-  let addStockForm;
-  if (showModal) {
-    editForm = (
-      <EditWatchlistForm
-        watchlist={watchlist}
-        showModal={showModal}
-        setShowModal={setShowModal}
-      ></EditWatchlistForm>
-    );
-  }
-  if (showAddStockToWatchlist) {
-    addStockForm = (
-      <AddStockForm hideform={toggleShowAddStockToWatchlist} watchlist={watchlist}></AddStockForm>
-    );
-  }
   return (
     <div className='watchListContainer'>
       <ul className='watchList'>
-        {/* <button onClick={toggleShowAddStockToWatchlist}>Add Stock to Watchlist</button>
-        {addStockForm} */}
-        {/* <button className='editWatchlist' onClick={toggleShowModal}>{editWatchlistText}</button>
-        {editForm} */}
-        {/* <div className='hamburgerDiv' onClick={toggleIsOpen}>
-        <Hamburger className={"stopit"}size={12} toggled={isOpen} >
-             </Hamburger>
-             </div> */}
         <div className='nameAndMenuIcon stockSymbol'>
           <span id='watchlistNameMain'> {watchlist.name} </span>
-          <span className={'menuSpan'} onClick={e => toggleIsOpen(e)}>
+          <span className={'menuSpan'} onClick={() => setOpen(!isOpen)}>
             {' '}
-            {menuText}
+            {isOpen ? '-' : '+'}
             {isOpen && <WatchlistMenu watchlist={watchlist}></WatchlistMenu>}
           </span>
         </div>
         {watchlist &&
           Object.values(watchlist.stocks).map((stock, i) => (
             <div key={i} className={'outerDiv'}>
-              <Link to={`stocks/${stock.symbol}`}>
+              <Link to={`/stocks/${stock.symbol}`}>
                 <div className='watchlistStockContainer' key={i}>
                   <div className='leftSide'>
                     <span className='stockSymbol one'>{stock.symbol}</span>
@@ -95,7 +44,7 @@ function Watchlist({ watchlist, quotes }) {
                         await dispatch(deleteStockFromWatchlist(stock.id, watchlist));
                       }}
                     >
-                      Remove {stock.name}
+                      Remove
                     </span>
                   </div>
                   <div className='rightSide'>
@@ -110,10 +59,7 @@ function Watchlist({ watchlist, quotes }) {
                         quotes[stock.symbol]?.change > 0 ? 'green' : 'red'
                       }`}
                     >
-                      {`${quotes[stock.symbol]?.change > 0 ? '+' : ''}${
-                        quotes[stock.symbol]?.change
-                      }`}
-                      %
+                      {formatPercent(quotes[stock.symbol]?.change_percent)}
                     </span>
                   </div>
                 </div>

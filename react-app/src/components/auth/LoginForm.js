@@ -32,7 +32,7 @@ const LoginForm = ({ user }) => {
 
   return (
     <div className='login-page-container'>
-      <img id='login-form-img' src='/static/rh-login-image.jpg' />
+      <img id='login-form-img' src='/static/rh-login-image.jpg' alt='' />
 
       <div className='login-form-container'>
         <form className='login-form' onSubmit={onLogin}>

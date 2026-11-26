@@ -10,7 +10,6 @@ function AddToWatchlist({ symbol, showModal, setShowModal }) {
     const [isLoaded, setIsLoaded] = useState(false);
     const [errors, setErrors] = useState([]);
     const watchlists = useSelector(state => state.portfolio.watchlists)
-    const stocks = useSelector(state => state.stocks);
 
     const dispatch = useDispatch();
 

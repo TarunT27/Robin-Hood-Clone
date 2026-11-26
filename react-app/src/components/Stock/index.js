@@ -36,10 +36,6 @@ function Stock() {
 
   const symbol = useParams().symbol.toUpperCase();
 
-  const closeWatchlistForm = () => {
-    setShowWatchlistform(false);
-  };
-
   const closeBuySellForm = () => {
     SetShowBuySell(false);
   };
@@ -58,11 +54,10 @@ function Stock() {
     })();
   }, [symbol]);
 
+  // Value of the shares you own, kept current as you trade.
   useEffect(() => {
-    if (assets[symbol]) {
-      setAssetsValue(assets[symbol].count * stock.current);
-    }
-  });
+    setAssetsValue(assets[symbol] ? assets[symbol].count * (stock.current || 0) : 0);
+  }, [assets, symbol, stock]);
 
   useEffect(() => {
     (async () => {
@@ -73,6 +68,8 @@ function Stock() {
       }
     })();
     setIsLoaded(true);
+    // Only refetch when the symbol or time frame changes, not when the cache fills.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, timeFrame]);
 
   useEffect(() => {
@@ -145,7 +142,7 @@ function Stock() {
               <div className='financials-title'>Market Cap</div>
               <div>
                 {stock.financials && stock.financials.market_cap
-                  ? fixMarketCap(stock.financials.market_cap)
+                  ? fixMarketCap(stock.financials.market_cap * 1e6) // reported in millions
                   : '-'}
               </div>
             </li>
@@ -212,7 +209,7 @@ function Stock() {
         <div className='buy-sell-btn-container'>
           <button
             id='buy-stock-btn'
-            className={`${color}` + `${buySell === 'buy' && showBuySell ? ' trade-selected' : ''}`}
+            className={`${color}${buySell === 'buy' && showBuySell ? ' trade-selected' : ''}`}
             onClick={() => {
               setBuySell('buy');
               SetShowBuySell(true);
@@ -222,7 +219,7 @@ function Stock() {
           </button>
           <button
             id='sell-stock-btn'
-            className={`${color}` + `${buySell === 'sell' && showBuySell ? ' trade-selected' : ''}`}
+            className={`${color}${buySell === 'sell' && showBuySell ? ' trade-selected' : ''}`}
             onClick={() => {
               setBuySell('sell');
               SetShowBuySell(true);
@@ -243,7 +240,7 @@ function Stock() {
             setIsLoaded={setIsLoaded}
           />
         )}
-        <div className={'stock buyingPowerContainer' + `${showMenu ? ' selected' : ''}`}>
+        <div className={`stock buyingPowerContainer${showMenu ? ' selected' : ''}`}>
           <div className='bpHeader noSelect' onClick={() => setShowMenu(!showMenu)}>
             <span>Buying Power</span>
             {!showMenu && (

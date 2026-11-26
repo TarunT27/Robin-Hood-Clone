@@ -1,28 +1,23 @@
 from app.models import db, User
+from .utils import clear_table
 
-demo_info = {
-    'first_name': 'Demo',
-    'last_name': 'User',
-    'email': 'demo@aa.io',
-    'password': 'password',
-    'buying_power': 100000
-}
-
-demo_user = User(**demo_info)
+DEMO_EMAIL = 'demo@aa.io'
 
 
-# Adds a demo user, you can add other users here if you want
+def demo_user_fields():
+    return {
+        'first_name': 'Demo',
+        'last_name': 'User',
+        'email': DEMO_EMAIL,
+        'password': 'password',
+        'buying_power': 100000,
+    }
+
+
 def seed_users():
-    db.session.add(demo_user)
-
+    db.session.add(User(**demo_user_fields()))
     db.session.commit()
 
 
-# Uses a raw SQL query to TRUNCATE the users table.
-# SQLAlchemy doesn't have a built in function to do this
-# TRUNCATE Removes all the data from the table, and RESET IDENTITY
-# resets the auto incrementing primary key, CASCADE deletes any
-# dependent entities
 def undo_users():
-    db.session.execute('TRUNCATE users RESTART IDENTITY CASCADE;')
-    db.session.commit()
+    clear_table('users')

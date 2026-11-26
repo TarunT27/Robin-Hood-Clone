@@ -1,0 +1,7 @@
+.git
+**/__pycache__
+**/node_modules
+react-app/build
+*.db
+.env
+.pytest_cache

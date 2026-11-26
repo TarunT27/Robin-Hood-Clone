@@ -1,7 +1,8 @@
 from app.models import db, Bank
+from .utils import clear_table
 
 banks = ['Chase', 'Wells Fargo', 'Bank of America', 'Capital One', 'Navy Federal Credit Union', 'USAA', 'U.S. Bank',
-         'Citibank', 'Chime', 'Citizens Bank', 'TD Bank', 'Ally Bank', 'Fidelity', 'Huntington Bank', 'Charles Swab']
+         'Citibank', 'Chime', 'Citizens Bank', 'TD Bank', 'Ally Bank', 'Fidelity', 'Huntington Bank', 'Charles Schwab']
 
 
 def seed_banks():
@@ -33,8 +34,8 @@ def seed_banks():
         name="Fidelity", url="https://www.fidelity.com/")
     huntington_bank = Bank(
         name="Huntington Bank", url="https://www.huntington.com/")
-    charles_swab = Bank(
-        name="Charles Swab", url="https://www.schwab.com/")
+    charles_schwab = Bank(
+        name="Charles Schwab", url="https://www.schwab.com/")
 
     db.session.add(chase)
     db.session.add(bank_of_america)
@@ -50,16 +51,11 @@ def seed_banks():
     db.session.add(ally_bank)
     db.session.add(fidelity)
     db.session.add(huntington_bank)
-    db.session.add(charles_swab)
+    db.session.add(charles_schwab)
 
     db.session.commit()
 
 
-# Uses a raw SQL query to TRUNCATE the banks table.
-# SQLAlchemy doesn't have a built in function to do this
-# TRUNCATE Removes all the data from the table, and RESET IDENTITY
-# resets the auto incrementing primary key, CASCADE deletes any
-# dependent entities
+
 def undo_banks():
-    db.session.execute('TRUNCATE banks RESTART IDENTITY CASCADE;')
-    db.session.commit()
+    clear_table('banks')

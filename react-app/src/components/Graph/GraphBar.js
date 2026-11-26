@@ -15,6 +15,7 @@ function GraphBar({ color, timeFrame, setTimeFrame, setTimeFrameText }) {
         break;
       case '1Y':
         setTimeFrameText('Past Year');
+        break;
       default:
         break;
     }

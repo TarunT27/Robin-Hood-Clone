@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Modal2 } from './context/Modal';
 import { editBankAccount } from '../../store/portfolio/bankAccount';
 import './Bank.css';
@@ -8,13 +7,12 @@ import './Bank.css';
 function EditBank({ userId, name, accountNumber, id, bankId }) {
   const [showModal, setShowModal] = useState(false);
 
-  const [updatedBank, setUpdatedBank] = useState(bankId);
+  const updatedBank = bankId;
   const [updatedName, setUpdatedname] = useState(name);
   const [updatedAccountNumber, setUpdatedAccountNumber] = useState(accountNumber);
 
   const [errors, setErrors] = useState([]);
 
-  const user = useSelector(state => state.session.user);
   const dispatch = useDispatch();
 
   const updateName = e => {
